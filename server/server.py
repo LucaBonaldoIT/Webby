@@ -43,32 +43,36 @@ class Connections:
 #
 
 async def process(websocket):
-    async for message in websocket:
+    try:
+        async for message in websocket:
 
-        message = Message(json.loads(message))
+            message = Message(json.loads(message))
 
-        if(message.type == 'handshake'):
-            Connections.add(websocket)
-            response = Message({'address': server_address, 'type':'handshake', 'content':'success'})
-            await websocket.send(json.dumps(response.toJSON()))
-            print(f'[HANDSHAKE] [{message.address}]: {message.content}')
+            if(message.type == 'handshake'):
+                Connections.add(websocket)
+                response = Message({'address': server_address, 'type':'handshake', 'content':'success'})
+                await websocket.send(json.dumps(response.toJSON()))
+                print(f'[HANDSHAKE] [{message.address}]: {message.content}')
 
-        elif(message.type == 'text'):
-            Chat.text += '<p>' + '<b>' + message.address + ':</b>\t' + message.content + '</p>'
-            response = Message({'address': message.address, 'type':'text', 'content':Chat.text})
-            for session in Connections.sessions:
-                await session.send(json.dumps(response.toJSON()))
-            print(f'[TEXT] [{message.address}]: {message.content}')
-        elif(message.type == 'ping'):
-            response = Message({'address': server_address, 'type':'ping', 'content':'alive'})
-            await websocket.send(json.dumps(response.toJSON()))
-            print(f'[PING] [{message.address}]: {message.content}')
-        else:
-            print(f'[UNKNOWN TYPE]: {message.type}')
-
+            elif(message.type == 'text'):
+                Chat.text += '<p>' + '<b>' + message.address + ':</b>\t' + message.content + '</p>'
+                response = Message({'address': message.address, 'type':'text', 'content':Chat.text})
+                for session in Connections.sessions:
+                    if not session.closed:
+                        await session.send(json.dumps(response.toJSON()))
+                print(f'[TEXT] [{message.address}]: {message.content}')
+            elif(message.type == 'ping'):
+                response = Message({'address': server_address, 'type':'ping', 'content':'alive'})
+                await websocket.send(json.dumps(response.toJSON()))
+                print(f'[PING] [{message.address}]: {message.content}')
+            else:
+                print(f'[UNKNOWN TYPE]: {message.type}')
+    except websockets.exceptions.ConnectionClosedError:
+        print("[ERROR] Client disconnected ungracefully")
 
 async def main():
     async with websockets.serve(process, "0.0.0.0", 8763):
         await asyncio.Future()  # run forever
+
 
 asyncio.run(main())
