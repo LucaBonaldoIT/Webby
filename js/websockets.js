@@ -29,9 +29,14 @@ class Connection {
   static handshake_status = null;
   static ping_status = null;
 
-  static configure(name, address) {
+  static last_message = null;
+
+  static handler = () => {};
+
+  static configure(name, address, handler) {
     Connection.client_name = name;
     Connection.client_address = address;
+    Connection.handler = handler;
   }
 
   static send(message) {
@@ -61,7 +66,9 @@ class Connection {
     };
 
     Connection.socket.onmessage = function (event) {
+
       let message = new Message(JSON.parse(event.data));
+      Connection.last_message = message;
 
       if (message.address == Connection.server_address) {
         // Start server message
@@ -73,16 +80,9 @@ class Connection {
             Connection.status = "connected";
             Connection.handshake_status = "good";
 
-            message = new Message({
-              address: Connection.client_address,
-              type: "text",
-              content: "Joined the chat",
-            });
-
-            Connection.send(message);
-
             setInterval(function () {
               let ping = new Message({
+                name: Connection.client_name,
                 address: Connection.client_address,
                 type: "ping",
                 content: "",
@@ -100,6 +100,8 @@ class Connection {
                 }
               }, Ping.delay);
             }, Ping.interval);
+          } else if (message.content == 'username-taken') {
+            Connection.status = "failed";
           }
 
           // Handshake end
@@ -112,12 +114,15 @@ class Connection {
         // Ping end
 
         // End server message
-      } else if (message.type == "text")
+      } else if (message.type == "text");
         // Start other client message
 
-        $("#response").html(message.content);
+        // Todo - Add message handling
 
       // End other client message
+
+      Connection.handler()
+
     };
   }
 }

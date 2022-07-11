@@ -26,11 +26,13 @@
     <div id="session-variables">
       <address>null</address>
       <nickname>null</nickname>
+      <status>null</status>
+      <current_page>login</current_page>
     </div>
 
     <div class="right-click-menu">
         <ul class="dropdown-menu dropdown-menu-dark position-static d-grid gap-1 p-2 rounded-3 mx-0 border-0 shadow w-220px">
-            <li><a class="dropdown-item rounded-2">Profile</a></li>
+            <li><a class="dropdown-item rounded-2 ">Profile</a></li>
             <li><a class="dropdown-item rounded-2">Friends</a></li>
             <li><a class="dropdown-item rounded-2">Chat</a></li>
             <li><hr class="dropdown-divider"></li>
@@ -38,7 +40,7 @@
         </ul>
     </div>
 
-    <div id='tutorial' class='page d-flex'>
+    <div id='login' class='page d-flex'>
       <div class="container-fluid col-lg-6 bg-dark d-flex flex-column justify-content-center shadow">
 
         <div id="title-0" class="container-fluid d-flex justify-content-center fade-in">
@@ -58,8 +60,6 @@
             Join now, it's as easy as writing your nickname! 👀
           </p>
         </div>
-
-
 
         <div class="my-5"></div>
 
@@ -84,7 +84,26 @@
       </div>
     </div>
 
-    <div id='profile' class='page'></div>
+    <div id='disconnected' class='page'>
+      <h2>Looks like you lost connection!</h2>
+    </div>
+
+    <div id='connecting' class='page d-flex'>
+
+      <div class="container-fluid col-lg-6 bg-dark d-flex flex-column justify-content-center shadow">
+        <h2 class="align-self-center font-monospace">Connecting...</h2>
+        <div class="my-3"></div>
+        <div class="spinner-border text-light align-self-center" role="status" style="width: 100px; height: 100px;"></div>
+      </div>
+
+
+    </div>
+
+    <div id='chat' class='page d-flex'>
+      <div class="container-fluid col-lg-6 bg-dark d-flex flex-column justify-content-center shadow">
+        
+      </div>
+    </div>
 
     <!-- JQuery -->
     <script
@@ -102,7 +121,7 @@
 
     <script src="js/address.js"></script>
     <script src="js/nickname.js"></script>
-    <script src="js/profile.js"></script>
+    <script src="js/engine.js"></script>
     <script src="js/websockets.js"></script>
     <script src="js/right-click-menu.js"></script>
     <script src="js/scrollingFadeIn.js"></script>

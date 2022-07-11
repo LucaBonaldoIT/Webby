@@ -50,10 +50,21 @@ label:focus {
   background-size: cover;
 }
 
-#tutorial {
+#login {
   z-index: 1;
 }
 
-#profile {
+#chat {
   z-index: 0;
+}
+
+#connecting {
+    z-index: 0;
+    background-color: black;
+}
+
+#disconnected {
+  z-index: 0;
+  background-color: black;
+  color: red;
 }
