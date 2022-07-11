@@ -13,36 +13,57 @@
       crossorigin="anonymous"
     />
 
+    <link rel="stylesheet" href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+
     <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/colors.css">
+    <link rel="stylesheet" href="css/right-click-menu.css" />
 
     <title>P2P Web Chat</title>
+
   </head>
-
-  <>
-
-    <!--
-
-
-    <div id="connection-status">NOT CONNECTED</div>
-
-    <textarea name="message" id="message" cols="30" rows="10"></textarea>
-    <button id="send-message">SEND</button>
-
-    <div class="text-container">
-      <div id="response"></div>
-    </div>
-
-    -->
 
     <div class="right-click-menu">
         <ul class="dropdown-menu dropdown-menu-dark position-static d-grid gap-1 p-2 rounded-3 mx-0 border-0 shadow w-220px">
-            <li><a class="dropdown-item rounded-2 active" href="#">Action</a></li>
-            <li><a class="dropdown-item rounded-2" href="#">Another action</a></li>
-            <li><a class="dropdown-item rounded-2" href="#">Something else here</a></li>
+            <li><a class="dropdown-item rounded-2">Profile</a></li>
+            <li><a class="dropdown-item rounded-2">Friends</a></li>
+            <li><a class="dropdown-item rounded-2">Chat</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item rounded-2" href="#">Separated link</a></li>
+            <li><a class="dropdown-item rounded-2">Help</a></li>
         </ul>
     </div>
+
+    <div id='tutorial' class='page d-flex'>
+      <div class="container-fluid col-lg-6 bg-dark d-flex flex-column justify-content-center shadow">
+
+        <div class="container-fluid d-flex justify-content-center">
+          <p class="display-2 fw-bolder text-center">Welcome to Webby</p>
+        </div>
+
+        <div class="container-fluid d-flex justify-content-center">
+          <p class="h2 fw-bolder text-center">A P2P web chat</p>
+        </div>
+
+        <div class="my-4"></div>
+
+        <div class="container-fluid d-flex justify-content-center">
+          <p class="fw-bolder text-center">Let's start with your nickname:</p>
+        </div>
+
+        <form class='m-5 d-flex flex-column align-self-center'>
+          <div class="form-group">
+            <label for="nickname">Nickname</label>
+            <input type="text" class="form-control" id="nickname" aria-describedby="nickname" placeholder="Enter nickname">
+          </div>
+          <div class="my-3"></div>
+
+          <button class="btn btn-primary w-75 align-self-center">Submit</button>
+        </form>
+      </div>
+    </div>
+
+    <div id='profile' class='page'></div>
+
 
     <!-- JQuery -->
     <script

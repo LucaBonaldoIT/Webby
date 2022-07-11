@@ -1,0 +1,12 @@
+.right-click-menu {
+    width: 300px;
+    height: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+    z-index: 0;
+}

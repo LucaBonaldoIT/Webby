@@ -1,61 +1,31 @@
 * {
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
 }
 
-#connection-status {
+::-webkit-scrollbar {
+    display: none;
+}
+
+.page {
     width: 100vw;
-    height: 20px;
-    background-color: red;
-    text-align: center;
-}
-
-#send-message {
-    height: 140px;
-    width: 100px;
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    outline: none;
-    border: none;
-    font-size: 20pt;
-    background-color: aquamarine;
-}
-
-#send-message:hover {
-    background-color: aqua;
-}
-
-#message {
-    background-color: wheat;
-    width: calc(100vw - 100px - 40px);
-    height: 100px;
-    bottom: 0;
-    position: fixed;
-    outline: none;
-    border: none;
-    font-size: 30pt;
-    resize: none;
-    padding: 20px;
-    z-index: 2;
-}
-
-#response p {
-    margin-bottom: 10px;
-    word-wrap: break-word;
-    background-color: rgba(127, 255, 212, 0.181);
-}
-
-.text-container {
-    width: 50vw;
-    background-color: rgb(123, 123, 123);
     min-height: 100vh;
+
     position: absolute;
-    left: 50%;
-    transform: translate(-50%);
-    -webkit-transform: translate(-50%);
-    -moz-transform: translate(-50%);
-    -ms-transform: translate(-50%);
-    -o-transform: translate(-50%);
-    padding: 30px;
+    left: 0;
+    top: 0;
+
+    background-image: url('../img/background.jpeg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#tutorial {
+    z-index: 1;
+}
+
+#profile {
+    z-index: 0;
 }
