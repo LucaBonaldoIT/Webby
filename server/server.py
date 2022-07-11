@@ -3,7 +3,7 @@ import websockets
 import json
 from datetime import datetime
 
-server_address = '151.42.218.228'
+server_address = 'localhost'
 
 class Chat:
     text = f'<p>Server started on {datetime.now()}</p>'

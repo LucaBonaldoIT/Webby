@@ -9,7 +9,7 @@ class Message {
   }
 }
 
-server_address = "151.42.218.228";
+server_address = 'localhost'; //"151.42.218.228";
 session_ip = "NO-IP";
 handshake_successful = false;
 ping_successful = false;
@@ -21,7 +21,7 @@ async function get_ip(params) {
   if (session_ip == server_address) session_ip = "SERVER";
 }
 
-socket = new WebSocket("ws://" + server_address + ":8763");
+const socket = new WebSocket("ws://" + server_address + ":8763");
 
 socket.onerror = function (e) {
   $("#connection-status").css("background-color", "red").html("NOT CONNECTED");
