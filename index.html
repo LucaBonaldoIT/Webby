@@ -23,6 +23,11 @@
 
   </head>
 
+    <div id="session-variables">
+      <address>null</address>
+      <nickname>null</nickname>
+    </div>
+
     <div class="right-click-menu">
         <ul class="dropdown-menu dropdown-menu-dark position-static d-grid gap-1 p-2 rounded-3 mx-0 border-0 shadow w-220px">
             <li><a class="dropdown-item rounded-2">Profile</a></li>
@@ -36,34 +41,50 @@
     <div id='tutorial' class='page d-flex'>
       <div class="container-fluid col-lg-6 bg-dark d-flex flex-column justify-content-center shadow">
 
-        <div class="container-fluid d-flex justify-content-center">
-          <p class="display-2 fw-bolder text-center">Welcome to Webby</p>
+        <div id="title-0" class="container-fluid d-flex justify-content-center fade-in">
+          <p class="display-2 fw-bolder text-center">Welcome to Webby 👋</p>
         </div>
 
-        <div class="container-fluid d-flex justify-content-center">
-          <p class="h2 fw-bolder text-center">A P2P web chat</p>
+        <div id="title-1" class="container-fluid d-flex justify-content-center fade-in">
+          <p class="h2 fw-bolder text-center">A P2P web chat 🤓</p>
         </div>
 
-        <div class="my-4"></div>
+        <div class="my-3"></div>
 
-        <div class="container-fluid d-flex justify-content-center">
-          <p class="fw-bolder text-center">Let's start with your nickname:</p>
+        <div id="title-2" class="container-fluid d-flex justify-content-center fade-in">
+          <p class="h4 fw-bolder">
+            Webby is a P2P web chat directly accessible from your browser! 🌐
+            <br>
+            Join now, it's as easy as writing your nickname! 👀
+          </p>
         </div>
 
-        <form class='m-5 d-flex flex-column align-self-center'>
-          <div class="form-group">
+
+
+        <div class="my-5"></div>
+
+        <div id="title-3" class="container-fluid d-flex justify-content-center fade-in">
+          <p class="fw-bolder text-center">Let's start with that:</p>
+        </div>
+        <div class="my-1"></div>
+
+        <div id="form" class='d-flex flex-column align-self-center fade-in'>
+          <div class="form-group d-flex flex-column">
             <label for="nickname">Nickname</label>
-            <input type="text" class="form-control" id="nickname" aria-describedby="nickname" placeholder="Enter nickname">
+            <input type="text" class="form-control" id="nickname-input" aria-describedby="nickname" placeholder="Enter nickname">
+            <div class="my-1"></div>
+            <div id="nickname-error-box" class="alert alert-warning small align-self-center" role="alert" style="width: 300px !important; word-wrap: break-word; display: none">
+            </div>
           </div>
-          <div class="my-3"></div>
 
-          <button class="btn btn-primary w-75 align-self-center">Submit</button>
-        </form>
+          <div class="my-2"></div>
+
+          <button id="submit-nickname" class="btn btn-primary w-75 align-self-center" onclick="this.blur()">🚀</button>
+        </div>
       </div>
     </div>
 
     <div id='profile' class='page'></div>
-
 
     <!-- JQuery -->
     <script
@@ -77,10 +98,14 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
       crossorigin="anonymous"
-    ></script>
+    ></script>\
 
+    <script src="js/address.js"></script>
+    <script src="js/nickname.js"></script>
+    <script src="js/profile.js"></script>
     <script src="js/websockets.js"></script>
     <script src="js/right-click-menu.js"></script>
+    <script src="js/scrollingFadeIn.js"></script>
 
   </body>
 </html>

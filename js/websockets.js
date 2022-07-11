@@ -1,80 +1,126 @@
+class Ping {
+  static interval = 30000;
+  static delay = 10000;
+}
+
 class Message {
   constructor(dict) {
+    this.name = dict["name"];
     this.address = dict["address"];
     this.type = dict["type"];
     this.content = dict["content"];
   }
   toJSON() {
-    return { address: this.address, type: this.type, content: this.content };
+    return {
+      name: this.name,
+      address: this.address,
+      type: this.type,
+      content: this.content,
+    };
   }
 }
 
-server_address = 'localhost'; //"151.42.218.228";
-session_ip = "NO-IP";
-handshake_successful = false;
-ping_successful = false;
+class Connection {
+  static server_address = "localhost";
+  static client_address = null;
+  static client_name = null;
+  static status = null;
+  static socket = null;
+  static handshake_status = null;
+  static ping_status = null;
 
-async function get_ip(params) {
-  let response = await fetch("https://api.ipify.org/?format=json");
-  let data = await response.json();
-  session_ip = data.ip;
-  if (session_ip == server_address) session_ip = "SERVER";
+  static configure(name, address) {
+    Connection.client_name = name;
+    Connection.client_address = address;
+  }
+
+  static send(message) {
+    Connection.socket.send(JSON.stringify(message.toJSON()));
+  }
+
+  static open() {
+    Connection.socket = new WebSocket(
+      "ws://" + Connection.server_address + ":8763"
+    );
+
+    Connection.status = "connecting";
+
+    Connection.socket.onerror = function (e) {
+      // Todo - add onerror
+    };
+
+    Connection.socket.onopen = function (e) {
+      Connection.send(
+        new Message({
+          name: Connection.client_name,
+          address: Connection.client_address,
+          type: "handshake",
+          content: "",
+        })
+      );
+    };
+
+    Connection.socket.onmessage = function (event) {
+      let message = new Message(JSON.parse(event.data));
+
+      if (message.address == Connection.server_address) {
+        // Start server message
+
+        if (message.type == "handshake") {
+          // Handshake start
+
+          if (message.content == "success") {
+            Connection.status = "connected";
+            Connection.handshake_status = "good";
+
+            message = new Message({
+              address: Connection.client_address,
+              type: "text",
+              content: "Joined the chat",
+            });
+
+            Connection.send(message);
+
+            setInterval(function () {
+              let ping = new Message({
+                address: Connection.client_address,
+                type: "ping",
+                content: "",
+              });
+
+              Connection.send(ping);
+
+              Connection.ping_status = "waiting";
+
+              setTimeout(function () {
+                if (Connection.ping_status == "good");
+                else {
+                  Connection.status = "disconnected";
+                  Connection.ping_status = "failed";
+                }
+              }, Ping.delay);
+            }, Ping.interval);
+          }
+
+          // Handshake end
+        } else if (message.type == "ping" && message.content == "alive") {
+          // Ping start
+
+          Connection.ping_status = "good";
+        }
+
+        // Ping end
+
+        // End server message
+      } else if (message.type == "text")
+        // Start other client message
+
+        $("#response").html(message.content);
+
+      // End other client message
+    };
+  }
 }
-
-const socket = new WebSocket("ws://" + server_address + ":8763");
-
-socket.onerror = function (e) {
-  $("#connection-status").css("background-color", "red").html("NOT CONNECTED");
-};
-
-socket.onopen = function (e) {
-  get_ip().finally(() => {
-    let m = new Message({
-      address: session_ip,
-      type: "handshake",
-      content: "",
-    });
-    socket.send(JSON.stringify(m.toJSON()));
-    $("#connection-status").css("background-color", "orange").html("HANDSHAKE");
-  });
-};
-
-socket.onmessage = function (event) {
-  message = new Message(JSON.parse(event.data));
-
-  if (message.address == server_address) {
-    if (message.type == "handshake") {
-      if (message.content == "success") {
-        $("#connection-status")
-          .css("background-color", "green")
-          .html("CONNECTED");
-        message = new Message({
-          address: session_ip,
-          type: "text",
-          content: "Joined the chat",
-        });
-        socket.send(JSON.stringify(message.toJSON()));
-        setInterval(function () {
-          let m = new Message({
-            address: session_ip,
-            type: "ping",
-            content: "",
-          });
-          socket.send(JSON.stringify(m.toJSON()));
-          ping_successful = false;
-          setTimeout(function () {
-            if (!ping_successful)
-              $("#connection-status")
-                .css("background-color", "red")
-                .html("NOT CONNECTED");
-          }, 10000);
-        }, 30000);
-      }
-    } else if (message.type == "ping" && message.content == "alive") {
-      ping_successful = true;
-    }
-  } else if (message.type == "text") $("#response").html(message.content);
-};
 
 $("#send-message").on("click", () => {
   content = $("#message").val();

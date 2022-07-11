@@ -69,6 +69,9 @@ async def process(websocket):
                 print(f'[UNKNOWN TYPE]: {message.type}')
     except websockets.exceptions.ConnectionClosedError:
         print("[ERROR] Client disconnected ungracefully")
+    except KeyError:
+        print(f"[ERROR] Key error! (Bad request?) {message}")
+
 
 async def main():
     async with websockets.serve(process, "0.0.0.0", 8763):
