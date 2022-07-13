@@ -1,9 +1,10 @@
 import asyncio
+from struct import pack
 import websockets
 
 import re
 import json
-from datetime import datetime
+from datetime import date, datetime
 
 import threading
 
@@ -14,16 +15,26 @@ from message import Message
 #   Global variables shared across every websocket
 #
 
+
 class Chats:
 
-    messages = {}
+    messages = []
 
     class Global:
-        text = f'<p>Server started on {datetime.now()}</p>'
+        messages = []
+
+        @staticmethod
+        def getJSON():
+            return {'messages': Chats.Global.messages}
+
+        @staticmethod
+        def getString():
+            return json.dumps(Chats.Global.getJSON())
 
     @staticmethod
     def get(recipient: str):
         return Chats.messages[recipient]
+
 
 class Clients:
 
@@ -84,7 +95,7 @@ async def process(websocket):
                             # Send the message and print
                             await client.send(type='handshake', content='success')
                             print(
-                            f'[HANDSHAKE] [{packet.name}] [{packet.address}]: {packet.content}')
+                                f'[HANDSHAKE] [{packet.name}] [{packet.address}]: {packet.content}')
                             return
                         await client.send(type='handshake', content='username-taken')
                         print(
@@ -102,15 +113,24 @@ async def process(websocket):
             # Handle text request
             elif(packet.type == 'text'):
 
-                Chats.text += '<p>' + '<b>' + packet.address + \
-                    ':</b>\t' + packet.content + '</p>'
+                message = Message(packet.content)
 
-                # Notify every clients
-                for client in Clients.sessions:
-                    if not client.websocket.closed:
-                        await client.send(name=packet.name, address=packet.address, type='text', content=Chats.text)
-                print(
-                    f'[TEXT] [{packet.name}] [{packet.address}]: {packet.content}')
+                # Todo - Add global as restrict username
+
+                if message.recipient == 'global':
+                    Chats.Global.messages.append(message)
+
+                    # Notify every clients
+                    for client in Clients.sessions:
+                        if not client.websocket.closed:
+                            await client.send(name=packet.name, address=packet.address, type='text', content=message.text)
+                    print(
+                        f'[TEXT] [{packet.name}] [{packet.address}]: {packet.content}')
+
+            # Handle chat request
+            elif(packet.type == 'chat-request'):
+                if packet.content == 'global':
+                    await client.send(type='chat-request', content=Chats.Global.getString())
 
             # Handle ping request
             elif(packet.type == 'ping'):
@@ -139,6 +159,10 @@ async def process(websocket):
 
 
 async def main():
+
+    Chats.Global.messages.append(Message({'recipient': 'global', 'sender': 'Server',
+                                 'text': 'Server started! Enjoy your stay!', 'timestamp': datetime.now().strftime('%H:%M')}))
+
     clean()
     async with websockets.serve(process, "0.0.0.0", 8763):
         await asyncio.Future()  # run forever

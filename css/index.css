@@ -51,21 +51,21 @@ label:focus {
 }
 
 #login {
-  z-index: 0;
+  z-index: 1;
 }
 
 #chat {
-  z-index: 1;
+  z-index: 0;
 }
 
 .chat-box {
   height: 60px;
-  background-color: rgba(0, 0, 0, 0.06);
-  border-radius: 10px 0px 0px 10px;
-  -webkit-border-radius: 10px 0px 0px 10px;
-  -moz-border-radius: 10px 0px 0px 10px;
-  -ms-border-radius: 10px 0px 0px 10px;
-  -o-border-radius: 10px 0px 0px 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px 10px 10px 10px;
+  -webkit-border-radius: 10px 10px 10px 10px;
+  -moz-border-radius: 10px 10px 10px 10px;
+  -ms-border-radius: 10px 10px 10px 10px;
+  -o-border-radius: 10px 10px 10px 10px;
   transition: background-color ease-in-out 0.2s;
   -webkit-transition: background-color ease-in-out 0.2s;
   -moz-transition: background-color ease-in-out 0.2s;
@@ -73,8 +73,12 @@ label:focus {
   -o-transition: background-color ease-in-out 0.2s;
 }
 
+.active-chat {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
 .chat-box:hover {
-  background-color: rgba(0, 0, 0, 0.124);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 #chat-content {

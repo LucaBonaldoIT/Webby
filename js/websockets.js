@@ -21,7 +21,7 @@ class Packet {
 }
 
 class Connection {
-  static server_address = "localhost";
+  static server_address = "151.42.218.228";
   static client_address = null;
   static client_name = null;
   static status = null;
@@ -29,7 +29,7 @@ class Connection {
   static handshake_status = null;
   static ping_status = null;
 
-  static last_message = null;
+  static last_packet = null;
 
   static handler = () => {};
 
@@ -39,8 +39,8 @@ class Connection {
     Connection.handler = handler;
   }
 
-  static send(message) {
-    Connection.socket.send(JSON.stringify(message.toJSON()));
+  static send(packet) {
+    Connection.socket.send(JSON.stringify(packet.toJSON()));
   }
 
   static open() {
@@ -68,7 +68,7 @@ class Connection {
     Connection.socket.onmessage = function (event) {
 
       let message = new Packet(JSON.parse(event.data));
-      Connection.last_message = message;
+      Connection.last_packet = message;
 
       if (message.address == Connection.server_address) {
         // Start server message

@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-server_address = 'localhost'
+server_address = '151.42.218.228'
 server_name = 'server'
 
 class Packet:
