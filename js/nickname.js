@@ -16,6 +16,12 @@ function check_nickname(e) {
     err_list += "<li>Nicknames should not contain white spaces!</li>";
   }
 
+  if (!(/^[a-zA-Z0-9 ]+$/.test(current_nickname))){
+    c++;
+    err_list += "<li>Nicknames should not contain symbols!</li>";
+  }
+
+
   if (c == 0) {
     $("#nickname-error-box").css("display", "none");
     $("#session-variables").children('nickname').html(current_nickname)

@@ -1,5 +1,5 @@
 import asyncio
-from sqlite3 import connect
+import re
 import websockets
 import json
 from datetime import datetime
@@ -67,6 +67,20 @@ async def process(websocket):
             session = Session(websocket, message.name, message.address)
 
             if(message.type == 'handshake'):
+
+                # Check username validity
+                if len(session.name) < 3 or not re.fullmatch('^[a-zA-Z0-9]+$', session.name):
+                    await session.send(type='handshake', content='username-invalid')
+                    print(
+                        f'[HANDSHAKE] [{message.name}] [{message.address}]: Failed! Invalid username!')
+                    return
+
+                # Check ip address validity
+                if not re.fullmatch('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$', session.ip):
+                    await session.send(type='handshake', content='address-invalid')
+                    print(
+                        f'[HANDSHAKE] [{message.name}] [{message.address}]: Failed! Invalid IP address!')
+                    return
 
                 # Check if username is already used
                 for s in Connections.sessions:
