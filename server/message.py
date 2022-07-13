@@ -1,3 +1,5 @@
+import json
+
 class Message:
     def __init__(self, message: dict) -> None:
         self.recipient = message['recipient']

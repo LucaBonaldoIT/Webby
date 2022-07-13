@@ -128,7 +128,6 @@ class Connection {
 }
 
 $("#send-message").on("click", () => {
-  content = $("#message").val();
   $("#message").val("");
   message = new Packet({
     address: session_ip,

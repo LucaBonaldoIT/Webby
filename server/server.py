@@ -79,6 +79,13 @@ async def process(websocket):
                 # Check if username is already used
                 for s in Clients.sessions:
                     if client.name == s.name:
+                        # In case the ip is the same is just a reconnection
+                        if client.ip == s.ip:
+                            # Send the message and print
+                            await client.send(type='handshake', content='success')
+                            print(
+                            f'[HANDSHAKE] [{packet.name}] [{packet.address}]: {packet.content}')
+                            return
                         await client.send(type='handshake', content='username-taken')
                         print(
                             f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Username already in use!')

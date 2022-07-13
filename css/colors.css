@@ -1,15 +1,16 @@
 
+
 /*------------------------------------
 - COLOR dark
 ------------------------------------*/
 .alert-dark {
     color: #000000;
-    background-color: #817d89;
-    border-color: #77737f;
+    background-color: #797484;
+    border-color: #6f6a79;
 }
 
 .alert-dark hr {
-    border-top-color: #6a6772;
+    border-top-color: #635e6c;
 }
 
 .alert-dark .alert-link {
@@ -18,100 +19,100 @@
 
 .badge-dark {
     color: #fff;
-    background-color: #1d1c1f;
+    background-color: #161518;
 }
 
 .badge-dark[href]:hover, .badge-dark[href]:focus {
     color: #fff;
-    background-color: #030304;
+    background-color: #000000;
 }
 
 .bg-dark {
-    background-color: #1d1c1f !important;
     color: #fff;
+    background-color: #161518 !important;
 }
 
 a.bg-dark:hover, a.bg-dark:focus,
 button.bg-dark:hover,
 button.bg-dark:focus {
-    background-color: #030304 !important;
+    background-color: #000000 !important;
 }
 
 .border-dark {
-    border-color: #1d1c1f !important;
+    border-color: #161518 !important;
 }
 
 .btn-dark {
     color: #fff;
-    background-color: #1d1c1f;
-    border-color: #1d1c1f;
+    background-color: #161518;
+    border-color: #161518;
 }
 
 .btn-dark:hover {
     color: #fff;
-    background-color: #0b0b0c;
-    border-color: #030304;
+    background-color: #040404;
+    border-color: #000000;
 }
 
 .btn-dark:focus, .btn-dark.focus {
-    box-shadow: 0 0 0 0.2rem rgba(29, 28, 31, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(22, 21, 24, 0.5);
 }
 
 .btn-dark.disabled, .btn-dark:disabled {
     color: #fff;
-    background-color: #1d1c1f;
-    border-color: #1d1c1f;
+    background-color: #161518;
+    border-color: #161518;
 }
 
 .btn-dark:not(:disabled):not(.disabled):active, .btn-dark:not(:disabled):not(.disabled).active, .show > .btn-dark.dropdown-toggle {
     color: #fff;
-    background-color: #030304;
+    background-color: #000000;
     border-color: #000000;
 }
 
 .btn-dark:not(:disabled):not(.disabled):active:focus, .btn-dark:not(:disabled):not(.disabled).active:focus, .show > .btn-dark.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(29, 28, 31, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(22, 21, 24, 0.5);
 }
 
 .btn-outline-dark {
-    color: #1d1c1f;
+    color: #161518;
     background-color: transparent;
-    border-color: #1d1c1f;
+    border-color: #161518;
 }
 
 .btn-outline-dark:hover {
     color: #fff;
-    background-color: #1d1c1f;
-    border-color: #1d1c1f;
+    background-color: #161518;
+    border-color: #161518;
 }
 
 .btn-outline-dark:focus, .btn-outline-dark.focus {
-    box-shadow: 0 0 0 0.2rem rgba(29, 28, 31, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(22, 21, 24, 0.5);
 }
 
 .btn-outline-dark.disabled, .btn-outline-dark:disabled {
-    color: #1d1c1f;
+    color: #161518;
     background-color: transparent;
 }
 
 .btn-outline-dark:not(:disabled):not(.disabled):active, .btn-outline-dark:not(:disabled):not(.disabled).active, .show > .btn-outline-dark.dropdown-toggle {
     color: #fff;
-    background-color: #1d1c1f;
-    border-color: #1d1c1f;
+    background-color: #161518;
+    border-color: #161518;
 }
 
 .btn-outline-dark:not(:disabled):not(.disabled):active:focus, .btn-outline-dark:not(:disabled):not(.disabled).active:focus, .show > .btn-outline-dark.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(29, 28, 31, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(22, 21, 24, 0.5);
 }
 
 .list-group-item-dark {
     color: #000000;
-    background-color: #77737f;
+    background-color: #6f6a79;
 }
 
 .list-group-item-dark.list-group-item-action:hover, .list-group-item-dark.list-group-item-action:focus {
     color: #000000;
-    background-color: #6a6772;
+    background-color: #635e6c;
 }
 
 .list-group-item-dark.list-group-item-action.active {
@@ -123,25 +124,26 @@ button.bg-dark:focus {
 .table-dark,
 .table-dark > th,
 .table-dark > td {
-    background-color: #77737f;
+    background-color: #6f6a79;
 }
 
 .table-hover .table-dark:hover {
-    background-color: #6a6772;
+    background-color: #635e6c;
 }
 
 .table-hover .table-dark:hover > td,
 .table-hover .table-dark:hover > th {
-    background-color: #6a6772;
+    background-color: #635e6c;
 }
 
 .text-dark {
-    color: #1d1c1f !important;
+    color: #161518 !important;
 }
 
 a.text-dark:hover, a.text-dark:focus {
-    color: #030304 !important;
+    color: #000000 !important;
 }
+
 
 
 /*------------------------------------
