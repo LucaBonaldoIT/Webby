@@ -3,7 +3,7 @@ class Ping {
   static delay = 10000;
 }
 
-class Message {
+class Packet {
   constructor(dict) {
     this.name = dict["name"];
     this.address = dict["address"];
@@ -56,7 +56,7 @@ class Connection {
 
     Connection.socket.onopen = function (e) {
       Connection.send(
-        new Message({
+        new Packet({
           name: Connection.client_name,
           address: Connection.client_address,
           type: "handshake",
@@ -67,7 +67,7 @@ class Connection {
 
     Connection.socket.onmessage = function (event) {
 
-      let message = new Message(JSON.parse(event.data));
+      let message = new Packet(JSON.parse(event.data));
       Connection.last_message = message;
 
       if (message.address == Connection.server_address) {
@@ -81,7 +81,7 @@ class Connection {
             Connection.handshake_status = "good";
 
             setInterval(function () {
-              let ping = new Message({
+              let ping = new Packet({
                 name: Connection.client_name,
                 address: Connection.client_address,
                 type: "ping",
@@ -130,7 +130,7 @@ class Connection {
 $("#send-message").on("click", () => {
   content = $("#message").val();
   $("#message").val("");
-  message = new Message({
+  message = new Packet({
     address: session_ip,
     type: "text",
     content: content,
@@ -143,7 +143,7 @@ $("#message").on("keypress", function (e) {
     e.preventDefault();
     content = $("#message").val();
     $("#message").val("");
-    message = new Message({
+    message = new Packet({
       address: session_ip,
       type: "text",
       content: content,

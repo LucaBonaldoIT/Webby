@@ -1,144 +1,138 @@
 import asyncio
-import re
 import websockets
+
+import re
 import json
 from datetime import datetime
 
-server_address = 'localhost'
-server_name = 'server'
+import threading
 
-class Chat:
-    text = f'<p>Server started on {datetime.now()}</p>'
+from websocket import Packet, Session
+from message import Message
 
+#
+#   Global variables shared across every websocket
+#
 
-class Message:
+class Chats:
 
-    def __init__(self) -> None:
-        self.name = None
-        self.address = None
-        self.type = None
-        self.content = None
+    messages = {}
 
-    def __init__(self, message: dict) -> None:
-        self.name = message['name']
-        self.address = message['address']
-        self.type = message['type']
-        self.content = message['content']
+    class Global:
+        text = f'<p>Server started on {datetime.now()}</p>'
 
-    def toJSON(self) -> dict:
-        return {'name': self.name, 'address': self.address, 'type': self.type, 'content': self.content}
+    @staticmethod
+    def get(recipient: str):
+        return Chats.messages[recipient]
 
-    def __str__(self) -> str:
-        return json.dumps(self.toJSON())
+class Clients:
 
-
-class Session:
-    def __init__(self, websocket, name, ip) -> None:
-        self.websocket = websocket
-        self.name = name
-        self.ip = ip
-        self.last = datetime.now()
-
-    async def send(self, name = server_name, address = server_address, type = 'error-type', content = ''):
-        message = Message({'name': name, 'address': address,
-                          'type': type, 'content': content})
-        await self.websocket.send(str(message))
-
-
-class Connections:
     sessions = []
 
     @staticmethod
     def add(session):
-        Connections.sessions.append(session)
+        Clients.sessions.append(session)
+
 
 #
+#   Cleaning function for dandling sockets
 #
+
+
+def clean():
+    print('[CLEANING]')
+    for s in Clients.sessions:
+        if (datetime.now() - s.last).total_seconds() > 60:
+            Clients.sessions.remove(s)
+
+    threading.Timer(30, clean).start()
+
+
 #
-#
+#   Main program logic
 #
 
 
 async def process(websocket):
     try:
-        async for message in websocket:
+        async for packet in websocket:
 
-            message = Message(json.loads(message))
-            session = Session(websocket, message.name, message.address)
+            packet = Packet(json.loads(packet))
+            client = Session(websocket, packet.name, packet.address)
 
-            if(message.type == 'handshake'):
+            if(packet.type == 'handshake'):
 
                 # Check username validity
-                if len(session.name) < 3 or not re.fullmatch('^[a-zA-Z0-9]+$', session.name):
-                    await session.send(type='handshake', content='username-invalid')
+                if len(client.name) < 3 or not re.fullmatch('^[a-zA-Z0-9]+$', client.name):
+                    await client.send(type='handshake', content='username-invalid')
                     print(
-                        f'[HANDSHAKE] [{message.name}] [{message.address}]: Failed! Invalid username!')
+                        f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Invalid username!')
                     return
 
                 # Check ip address validity
-                if not re.fullmatch('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$', session.ip):
-                    await session.send(type='handshake', content='address-invalid')
+                if not re.fullmatch('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$', client.ip):
+                    await client.send(type='handshake', content='address-invalid')
                     print(
-                        f'[HANDSHAKE] [{message.name}] [{message.address}]: Failed! Invalid IP address!')
+                        f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Invalid IP address!')
                     return
 
                 # Check if username is already used
-                for s in Connections.sessions:
-                    if session.name == s.name:
-                        if (datetime.now() - s.last).total_seconds() > 60:
-                            Connections.sessions.remove(s)
-                            break
-                        await session.send(type='handshake', content='username-taken')
+                for s in Clients.sessions:
+                    if client.name == s.name:
+                        await client.send(type='handshake', content='username-taken')
                         print(
-                            f'[HANDSHAKE] [{message.name}] [{message.address}]: Failed! Username already in use!')
+                            f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Username already in use!')
                         return
 
                 # Add current client to clients list
-                Connections.add(session)
+                Clients.add(client)
 
                 # Send the message and print
-                await session.send(type='handshake', content='success')
+                await client.send(type='handshake', content='success')
                 print(
-                    f'[HANDSHAKE] [{message.name}] [{message.address}]: {message.content}')
+                    f'[HANDSHAKE] [{packet.name}] [{packet.address}]: {packet.content}')
 
             # Handle text request
-            elif(message.type == 'text'):
+            elif(packet.type == 'text'):
 
-                Chat.text += '<p>' + '<b>' + message.address + \
-                    ':</b>\t' + message.content + '</p>'
+                Chats.text += '<p>' + '<b>' + packet.address + \
+                    ':</b>\t' + packet.content + '</p>'
 
                 # Notify every clients
-                for session in Connections.sessions:
-                    if not session.websocket.closed:
-                        await session.send(name=message.name, address=message.address, type='text', content=Chat.text)
+                for client in Clients.sessions:
+                    if not client.websocket.closed:
+                        await client.send(name=packet.name, address=packet.address, type='text', content=Chats.text)
                 print(
-                    f'[TEXT] [{message.name}] [{message.address}]: {message.content}')
+                    f'[TEXT] [{packet.name}] [{packet.address}]: {packet.content}')
 
             # Handle ping request
-            elif(message.type == 'ping'):
+            elif(packet.type == 'ping'):
 
-                for s in Connections.sessions:
-                    if s.name == session.name:
+                for s in Clients.sessions:
+                    if s.name == client.name:
                         s.last = datetime.now()
 
                 # Send ping back
-                await session.send(type='ping', content='alive')
+                await client.send(type='ping', content='alive')
                 print(
-                    f'[PING] [{message.name}] [{message.address}]: {message.content}')
+                    f'[PING] [{packet.name}] [{packet.address}]: {packet.content}')
 
+            # Handle errors
             else:
-                print(f'[UNKNOWN TYPE]: {message.type}')
+                await client.send(type='error', content='unknown-type')
+                print(f'[UNKNOWN TYPE]: {packet.type}')
 
     # Exception handling
     except websockets.exceptions.ConnectionClosedError:
         print("[ERROR] Client disconnected ungracefully")
     except json.decoder.JSONDecodeError:
-        print(f"[ERROR] JSONDecodeError! (Bad request?) {message}")
+        print(f"[ERROR] JSONDecodeError! (Bad request?) {packet}")
     except KeyError:
-        print(f"[ERROR] Key error! (Bad request?) {message}")
+        print(f"[ERROR] Key error! (Bad request?) {packet}")
 
 
 async def main():
+    clean()
     async with websockets.serve(process, "0.0.0.0", 8763):
         await asyncio.Future()  # run forever
 
