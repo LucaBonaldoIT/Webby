@@ -1,3 +1,2 @@
 node_modules/
 *.pyc
-server/__pycache__/websocket.cpython-310.pyc
