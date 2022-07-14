@@ -123,7 +123,7 @@ async def process(websocket):
                     # Notify every clients
                     for client in Clients.sessions:
                         if not client.websocket.closed:
-                            await client.send(name=packet.name, address=packet.address, type='text', content=message.text)
+                            await client.send(name=packet.name, address=packet.address, type='text', content=json.dumps({'recipient': message.recipient, 'sender': message.sender, 'text': message.text, 'timestamp': message.timestamp}))
                     print(
                         f'[TEXT] [{packet.name}] [{packet.address}]: {packet.content}')
 

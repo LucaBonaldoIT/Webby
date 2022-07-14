@@ -114,12 +114,7 @@ class Connection {
         // Ping end
 
         // End server message
-      } else if (message.type == "text");
-        // Start other client message
-
-        // Todo - Add message handling
-
-      // End other client message
+      }
 
       Connection.handler()
 
