@@ -101,11 +101,22 @@
 
     <div id='chat' class='page d-flex'>
       <div class="container-fluid col-lg-9 bg-dark shadow d-flex shadow">
-        <div id="chat-boxes" class="container g-0 col-4">
-          <div class="chat-box container d-flex flex-column justify-content-center my-2">
-            <p class="text-light h5 fw-bold">Global</p>
+        <div class="container col-4 d-flex flex-column align-items-center">
+          <div id="new-chat" class="container-fluid my-3 d-flex justify-content-between">
+            <div class="col-10">
+              <input class="w-100 shadow p-3" id="new-chat-input"></input>
+            </div>
+            <div id="search-chat-icon" class="container-fluid">
+              <i class="bi bi-chat-left-dots" style="font-size: 35px;"></i>
+            </div>
+          </div>
+          <div id="chat-boxes" class="container-fluid">
+            <div id="global" class="chat-box container d-flex flex-column justify-content-center my-2">
+              <p class="text-light h5 fw-bold">Global</p>
+            </div>
           </div>
         </div>
+
         <div class="mx-2"></div>
         <div id="chat-content" class="col-8 d-flex flex-column justify-content-evenly">
           <div id="chat-texts" class="container col-11 d-flex flex-column">
@@ -119,8 +130,6 @@
           </div>
         </div>
       </div>
-
-
 
     </div>
 

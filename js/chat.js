@@ -4,6 +4,8 @@ class Chat {
   static session_status = null;
   static current_chat = null;
 
+  static opened_chat = [];
+
   // Client/Server functions
 
   static open_connection() {
@@ -58,6 +60,7 @@ class Chat {
         <p class='text-light h5 fw-bold'>${name}</p>
       </div>
     `);
+    Chat.opened_chat.push(name)
   }
 
   static get_chat(chat) {
@@ -72,10 +75,15 @@ class Chat {
   }
 
   static change_chat(chat) {
-    // Todo - add change chat function
+    if (!Nickname.is_valid(chat))
+      return;
+
+    if (Chat.opened_chat.indexOf(chat) == -1)
+      Chat.add_chat(chat)
+
     Chat.clean_chat();
-    Chat.load_chat(chat)
     Chat.current_chat = chat;
+    Chat.get_chat(chat)
   }
 
   static load_chat(chat) {
@@ -112,12 +120,14 @@ class Chat {
     let packet = Connection.last_packet;
     Chat.current_page = Chat.getCurrentPage();
 
+    console.log(packet)
+
     if (packet.type == "chat-request") {
       Chat.load_chat(packet.content);
     } else if (packet.type == "text") {
       let message = JSON.parse(packet.content)
       if (packet.name == Chat.nickname) return;
-      if (message['recipient'] == 'global')
+      //if (message['recipient'] == 'global')
         Chat.append_message(packet.name, message['text'], Chat.getTimestamp());
     }
 
@@ -128,9 +138,9 @@ class Chat {
       if (Chat.session_status == "connected") {
         Chat.get_chat("global");
         Chat.changePageTo('connected')
-      } else if (session_status == "failed") {
+      } else if (Chat.session_status == "failed") {
         Chat.changePageTo('disconnected')
-      } else if (session_status == "connecting") {
+      } else if (Chat.session_status == "connecting") {
         Chat.changePageTo('connecting')
 
       } else {
@@ -188,3 +198,18 @@ $("#send-message-input").on("keypress", function (e) {
   }
 });
 
+function temp_ChangeChat() {
+  let new_chat = $('#new-chat-input').val();
+  if (new_chat == '')
+    return
+  $('#new-chat-input').val('');
+  Chat.change_chat(new_chat)
+}
+
+$("#search-chat-icon").on("click", temp_ChangeChat);
+
+$("#new-chat-input").on("keypress", function (e) {
+  if (e.key === "Enter" || e.keyCode === 13) {
+    temp_ChangeChat();
+  }
+});

@@ -1,5 +1,7 @@
 import asyncio
+import hashlib
 from struct import pack
+from tabnanny import verbose
 import websockets
 
 import re
@@ -15,10 +17,15 @@ from message import Message
 #   Global variables shared across every websocket
 #
 
+class Log:
+    verbose = False
+    def print(text):
+        if Log.verbose:
+            print(text)
 
 class Chats:
 
-    messages = []
+    data: dict = {}
 
     class Global:
         messages = []
@@ -32,9 +39,40 @@ class Chats:
             return json.dumps(Chats.Global.getJSON())
 
     @staticmethod
-    def get(recipient: str):
-        return Chats.messages[recipient]
+    def getString(clients):
+        return json.dumps(Chats.getJSON(clients))
 
+    @staticmethod
+    def getClientsHash(clients):
+        clients = sorted(clients)
+        clients = hashlib.md5((clients[0] + clients[1]).encode()).hexdigest()
+
+    @staticmethod
+    def getJSON(clients):
+        clients_hash = Chats.getClientsHash(clients)
+        if clients_hash in Chats.data:
+            return {'messages': Chats.data[clients_hash]}
+        else:
+            return {'messages':''}
+
+    @staticmethod
+    def append(message: Message):
+        clients_hash = Chats.getClientsHash([message.sender, message.recipient])
+
+        if clients_hash in Chats.data:
+            Chats.data[clients_hash].append(message)
+        else:
+            Chats.data[clients_hash] = [message]
+
+    @staticmethod
+    def is_username_valid(username):
+        if username == 'global':
+            return 'username-invalid'
+
+        if len(username) < 3 or not re.fullmatch('^[a-zA-Z0-9]+$', username):
+            return 'username-invalid'
+
+        return 'no-error'
 
 class Clients:
 
@@ -51,7 +89,7 @@ class Clients:
 
 
 def clean():
-    print('[CLEANING]')
+    Log.print('[CLEANING]')
     for s in Clients.sessions:
         if (datetime.now() - s.last).total_seconds() > 60:
             Clients.sessions.remove(s)
@@ -74,16 +112,18 @@ async def process(websocket):
             if(packet.type == 'handshake'):
 
                 # Check username validity
-                if len(client.name) < 3 or not re.fullmatch('^[a-zA-Z0-9]+$', client.name):
+                res = Chats.is_username_valid(client.name)
+
+                if res != 'no-error':
                     await client.send(type='handshake', content='username-invalid')
-                    print(
+                    Log.print(
                         f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Invalid username!')
                     return
 
                 # Check ip address validity
                 if not re.fullmatch('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$', client.ip):
                     await client.send(type='handshake', content='address-invalid')
-                    print(
+                    Log.print(
                         f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Invalid IP address!')
                     return
 
@@ -94,11 +134,11 @@ async def process(websocket):
                         if client.ip == s.ip:
                             # Send the message and print
                             await client.send(type='handshake', content='success')
-                            print(
+                            Log.print(
                                 f'[HANDSHAKE] [{packet.name}] [{packet.address}]: {packet.content}')
                             return
                         await client.send(type='handshake', content='username-taken')
-                        print(
+                        Log.print(
                             f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Username already in use!')
                         return
 
@@ -107,7 +147,7 @@ async def process(websocket):
 
                 # Send the message and print
                 await client.send(type='handshake', content='success')
-                print(
+                Log.print(
                     f'[HANDSHAKE] [{packet.name}] [{packet.address}]: {packet.content}')
 
             # Handle text request
@@ -123,14 +163,28 @@ async def process(websocket):
                     # Notify every clients
                     for client in Clients.sessions:
                         if not client.websocket.closed:
-                            await client.send(name=packet.name, address=packet.address, type='text', content=json.dumps({'recipient': message.recipient, 'sender': message.sender, 'text': message.text, 'timestamp': message.timestamp}))
-                    print(
+                            await client.send(name=packet.name, address=packet.address, type='text', content=str(message))
+                    Log.print(
                         f'[TEXT] [{packet.name}] [{packet.address}]: {packet.content}')
+
+                else:
+                    if Chats.is_username_valid(packet.content) == 'no-error':
+                        Chats.append(message)
+                        # Todo - Implement hashable sessions for faster performance
+                        for client in Clients.sessions:
+                            if client.name == message.recipient:
+                                Log.print('sent')
+                                await client.send(name=packet.name, address=packet.address, type='text', content=str(message))
 
             # Handle chat request
             elif(packet.type == 'chat-request'):
                 if packet.content == 'global':
                     await client.send(type='chat-request', content=Chats.Global.getString())
+
+                else:
+                    if Chats.is_username_valid(packet.content) == 'no-error':
+                        clients = [packet.name, packet.content]
+                        await client.send(type='chat-request', content=Chats.getString(clients))
 
             # Handle ping request
             elif(packet.type == 'ping'):
@@ -141,27 +195,33 @@ async def process(websocket):
 
                 # Send ping back
                 await client.send(type='ping', content='alive')
-                print(
+                Log.print(
                     f'[PING] [{packet.name}] [{packet.address}]: {packet.content}')
 
             # Handle errors
             else:
                 await client.send(type='error', content='unknown-type')
-                print(f'[UNKNOWN TYPE]: {packet.type}')
+                Log.print(f'[UNKNOWN TYPE]: {packet.type}')
 
     # Exception handling
     except websockets.exceptions.ConnectionClosedError:
-        print("[ERROR] Client disconnected ungracefully")
+        Log.print("[ERROR] Client disconnected ungracefully")
     except json.decoder.JSONDecodeError:
-        print(f"[ERROR] JSONDecodeError! (Bad request?) {packet}")
+        Log.print(f"[ERROR] JSONDecodeError! (Bad request?) {packet}")
     except KeyError:
-        print(f"[ERROR] Key error! (Bad request?) {packet}")
-
+        Log.print(f"[ERROR] Key error! (Bad request?) {packet}")
+    except TypeError:
+        Log.print(f"[ERROR] Type error! (Bad request?) {packet}")
+    #except:
+    #    Log.print("[ERROR] Unknown error!")
 
 async def main():
 
+    Log.verbose = True
+
     Chats.Global.messages.append(Message({'recipient': 'global', 'sender': 'Server',
                                  'text': 'Server started! Enjoy your stay!', 'timestamp': datetime.now().strftime('%H:%M')}))
+
 
     clean()
     async with websockets.serve(process, "0.0.0.0", 8763):

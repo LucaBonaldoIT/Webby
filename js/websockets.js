@@ -66,7 +66,6 @@ class Connection {
     };
 
     Connection.socket.onmessage = function (event) {
-
       let message = new Packet(JSON.parse(event.data));
       Connection.last_packet = message;
 
@@ -100,10 +99,11 @@ class Connection {
                 }
               }, Ping.delay);
             }, Ping.interval);
-          } else if (message.content == 'username-taken') {
+          } else if (message.content == "username-taken") {
+            Connection.status = "failed";
+          } else {
             Connection.status = "failed";
           }
-
           // Handshake end
         } else if (message.type == "ping" && message.content == "alive") {
           // Ping start
@@ -116,8 +116,7 @@ class Connection {
         // End server message
       }
 
-      Connection.handler()
-
+      Connection.handler();
     };
   }
 }

@@ -99,9 +99,6 @@ label:focus {
   -o-border-radius: 100%;
 }
 
-.chat-message {
-}
-
 .chat-message input {
   height: 50px;
   border: none;
@@ -113,6 +110,48 @@ label:focus {
   -o-border-radius: 20px;
   resize: none;
   word-wrap: normal;
+}
+#new-chat input {
+  height: 50px;
+  border-radius: 20px;
+  border: none;
+  background-color: rgba(0, 0, 0, 0.227);
+  color: white;
+  outline: none;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  -o-border-radius: 20px;
+  resize: none;
+  word-wrap: normal;
+}
+
+#search-chat-icon:hover {
+  color: #2e84b7;
+  transform: rotate(360deg);
+  transition: all ease-in-out 0.4s;
+  -webkit-transition: all ease-in-out 0.4s;
+  -moz-transition: all ease-in-out 0.4s;
+  -ms-transition: all ease-in-out 0.4s;
+  -o-transition: all ease-in-out 0.4s;
+  -webkit-transform: rotate(360deg);
+  -moz-transform: rotate(360deg);
+  -ms-transform: rotate(360deg);
+  -o-transform: rotate(360deg);
+}
+
+#send-message-button:hover {
+  color: #2e84b7;
+  transform: rotate(360deg);
+  transition: all ease-in-out 0.5s;
+  -webkit-transition: all ease-in-out 0.5s;
+  -moz-transition: all ease-in-out 0.5s;
+  -ms-transition: all ease-in-out 0.5s;
+  -o-transition: all ease-in-out 0.5s;
+  -webkit-transform: rotate(360deg);
+  -moz-transform: rotate(360deg);
+  -ms-transform: rotate(360deg);
+  -o-transform: rotate(360deg);
 }
 
 .message {
