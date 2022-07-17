@@ -5,32 +5,33 @@ class Chat {
   static session_status = null;
   static current_chat = null;
 
-  static opened_chat = ['global'];
+  static opened_chat = ["global"];
 
   // Client/Server functions
 
   static open_connection() {
+    Chat.nickname = Chat.getVariableFromHTML("nickname");
+    Chat.address = Chat.getVariableFromHTML("address");
+    Chat.password = Chat.getVariableFromHTML("password");
 
-    Chat.nickname = Chat.getVariableFromHTML('nickname');
-    Chat.address = Chat.getVariableFromHTML('address');
-    Chat.password = Chat.getVariableFromHTML('password');
-
-    Chat.current_chat = 'global';
+    Chat.current_chat = "global";
 
     if (Chat.nickname == "null" || Chat.address == "null") return;
 
-    Connection.configure(Chat.nickname, Chat.password, Chat.address, Chat.update_handler);
+    Connection.configure(
+      Chat.nickname,
+      Chat.password,
+      Chat.address,
+      Chat.update_handler
+    );
     Connection.open();
-
   }
 
   static send_message() {
-
     let content = $("#send-message-input").val();
     $("#send-message-input").val("");
 
-    if (content == "")
-      return;
+    if (content == "") return;
 
     let timestamp = Chat.getTimestamp();
 
@@ -57,13 +58,19 @@ class Chat {
     $("#chat-texts").html("");
   }
 
-  static add_chat(name) {
+  static add_chat(name, notification = false) {
+    let unread = "";
+
+    if (notification) unread = "unread";
+
     $("#chat-boxes").append(`
-      <div id=${name + '-chat-box'} class='chat-box container d-flex flex-column justify-content-center my-2'>
+      <div id=${
+        name + "-chat-box"
+      } class='chat-box container d-flex flex-column justify-content-center my-2 ${unread}'>
         <p id=${name} class='text-light h5 fw-bold'>${name}</p>
       </div>
     `);
-    Chat.opened_chat.push(name)
+    Chat.opened_chat.push(name);
   }
 
   static get_chat(chat) {
@@ -78,23 +85,25 @@ class Chat {
   }
 
   static change_chat(chat) {
-    if (!Nickname.is_valid(chat))
-      return;
+    if (!Nickname.is_valid(chat)) return;
 
-    if (Chat.opened_chat.indexOf(chat) == -1)
-      Chat.add_chat(chat)
+    if (Chat.opened_chat.indexOf(chat) == -1) Chat.add_chat(chat);
 
     Chat.clean_chat();
 
-    $('#chat-boxes').children('.active-chat').removeClass('active-chat')
+    $("#chat-boxes").children(".active-chat").removeClass("active-chat");
     Chat.current_chat = chat;
-    $('#chat-boxes').children('#' + Chat.current_chat + '-chat-box').addClass('active-chat')
-    Chat.get_chat(chat)
-
+    $("#chat-boxes")
+      .children("#" + Chat.current_chat + "-chat-box")
+      .addClass("active-chat");
+    $("#chat-boxes")
+      .children("#" + Chat.current_chat + "-chat-box")
+      .removeClass("unread");
+    Chat.get_chat(chat);
   }
 
   static load_chat(chat) {
-    chat = JSON.parse(chat)
+    chat = JSON.parse(chat);
     for (let i = 0; i < chat["messages"].length; i++) {
       Chat.append_message(
         chat["messages"][i]["sender"],
@@ -127,34 +136,52 @@ class Chat {
     let packet = Connection.last_packet;
     Chat.current_page = Chat.getCurrentPage();
 
-    console.log(packet)
-
     if (packet.type == "chat-request") {
       Chat.load_chat(packet.content);
     } else if (packet.type == "text") {
-      let message = JSON.parse(packet.content)
+      let message = JSON.parse(packet.content);
       if (packet.name == Chat.nickname) return;
 
-      if (Chat.current_chat == 'global')
-        if (message['recipient'] == 'global')
-          Chat.append_message(packet.name, message['text'], Chat.getTimestamp());
+      if (
+        Chat.current_chat != message["sender"] &&
+        message["recipient"] != "global"
+      ) {
+        if (Chat.opened_chat.indexOf(message["sender"]) != -1) {
+          $("#chat-boxes")
+            .children("#" + message["sender"] + "-chat-box")
+            .addClass("unread");
+        } else {
+          Chat.add_chat(message["sender"], true);
+          Chat.opened_chat.push(message["sender"]);
+        }
+      }
 
-      if ((message['sender'] == Chat.current_chat) && (message['recipient'] == Chat.nickname))
-        Chat.append_message(packet.name, message['text'], Chat.getTimestamp());
+      if (Chat.current_chat == "global")
+        if (message["recipient"] == "global")
+          Chat.append_message(
+            packet.name,
+            message["text"],
+            Chat.getTimestamp()
+          );
+
+      if (
+        message["sender"] == Chat.current_chat &&
+        message["recipient"] == Chat.nickname
+      )
+        Chat.append_message(packet.name, message["text"], Chat.getTimestamp());
     }
 
     if (Chat.session_status != Connection.status) {
       Chat.session_status = Connection.status;
-      Chat.setVariableToHTML('status', Chat.session_status)
+      Chat.setVariableToHTML("status", Chat.session_status);
 
       if (Chat.session_status == "connected") {
-        Chat.changePageTo('connected')
-        Chat.change_chat('global')
+        Chat.changePageTo("connected");
+        Chat.change_chat("global");
       } else if (Chat.session_status == "failed") {
-        Chat.changePageTo('disconnected')
+        Chat.changePageTo("disconnected");
       } else if (Chat.session_status == "connecting") {
-        Chat.changePageTo('connecting')
-
+        Chat.changePageTo("connecting");
       } else {
         // Todo - Add handling
       }
@@ -176,17 +203,17 @@ class Chat {
     let hours = date.getHours();
     let minutes = date.getMinutes();
     return `${hours}:${minutes}`;
-  };
+  }
 
-  static getCurrentPage(){
+  static getCurrentPage() {
     return Chat.getVariableFromHTML("current_page");
-  };
+  }
 
   static changePageTo(page) {
     $("#" + Chat.current_page).css("z-index", "0");
     $("#" + page).css("z-index", "1");
-    Chat.setVariableToHTML('current_page', 'chat')
-  };
+    Chat.setVariableToHTML("current_page", "chat");
+  }
 
   static getVariableFromHTML(variable) {
     return $("#session-variables").children(variable).html();
@@ -195,7 +222,6 @@ class Chat {
   static setVariableToHTML(variable, value) {
     return $("#session-variables").children(variable).html(value);
   }
-
 }
 
 // Listeners
@@ -216,11 +242,10 @@ $("#send-message-input").on("keypress", function (e) {
 });
 
 function temp_ChangeChat() {
-  let new_chat = $('#new-chat-input').val();
-  if (new_chat == '')
-    return
-  $('#new-chat-input').val('');
-  Chat.change_chat(new_chat)
+  let new_chat = $("#new-chat-input").val();
+  if (new_chat == "") return;
+  $("#new-chat-input").val("");
+  Chat.change_chat(new_chat);
 }
 
 $("#search-chat-icon").on("click", temp_ChangeChat);
@@ -231,8 +256,7 @@ $("#new-chat-input").on("keypress", function (e) {
   }
 });
 
-$('#chat-boxes').on('click', (e) => {
-  chat = e.target.id
-    if (chat != 'chat-boxes')
-      Chat.change_chat(chat)
-})
+$("#chat-boxes").on("click", (e) => {
+  chat = e.target.id;
+  if (chat != "chat-boxes") Chat.change_chat(chat);
+});
