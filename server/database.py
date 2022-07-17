@@ -8,7 +8,7 @@ class Texts:
 
     insert: str = 'INSERT INTO TEXTS (clients, chat) values(?, ?)'
     get: str = 'SELECT chat FROM TEXTS WHERE clients = ?'
-    get_all_command: str = ''
+    get_all_command: str = 'SELECT * FROM TEXTS'
     update: str = 'UPDATE TEXTS SET chat = ? WHERE clients = ?'
 
     @staticmethod

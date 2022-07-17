@@ -58,6 +58,14 @@ class Chats:
             return {'messages':''}
 
     @staticmethod
+    def toJSON(chat):
+        return {'messages': chat}
+
+    @staticmethod
+    def toString(chat):
+        return json.dumps(Chats.toJSON(chat))
+
+    @staticmethod
     def append(message: Message):
         clients_hash = Chats.getClientsHash([message.sender, message.recipient])
 
@@ -78,11 +86,13 @@ class Chats:
 
     @staticmethod
     def load():
-        print(Texts.get_all())
+        for clients, chat in Texts.get_all():
+            Chats.data[clients] = json.loads(chat)['messages']
+
     @staticmethod
     def save():
-        for clients, _ in Chats.data.items():
-            Texts.save(clients, Chats.getString(clients))
+        for clients, chat in Chats.data.items():
+            Texts.save(clients, Chats.toString(chat))
 
 class Clients:
 
