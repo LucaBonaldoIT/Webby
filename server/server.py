@@ -1,7 +1,5 @@
 import asyncio
 import hashlib
-from struct import pack
-from tabnanny import verbose
 import websockets
 
 import re
@@ -12,13 +10,16 @@ import threading
 
 from websocket import Packet, Session
 from message import Message
+from database import Users, Texts
 
 #
 #   Global variables shared across every websocket
 #
 
 class Log:
+
     verbose = False
+
     def print(text):
         if Log.verbose:
             print(text)
@@ -75,6 +76,14 @@ class Chats:
 
         return 'no-error'
 
+    @staticmethod
+    def load():
+        print(Texts.get_all())
+    @staticmethod
+    def save():
+        for clients, _ in Chats.data.items():
+            Texts.save(clients, Chats.getString(clients))
+
 class Clients:
 
     sessions = []
@@ -91,12 +100,24 @@ class Clients:
 
 def clean():
     Log.print('[CLEANING]')
+
+    to_remove = []
+
     for s in Clients.sessions:
         if (datetime.now() - s.last).total_seconds() > 60:
-            Clients.sessions.remove(s)
+            to_remove.append(s)
+
+    for s in to_remove:
+        Clients.sessions.remove(s)
 
     threading.Timer(30, clean).start()
 
+def save():
+    Log.print('[SAVING]')
+
+    Chats.save()
+
+    threading.Timer(30, save).start()
 
 #
 #   Main program logic
@@ -128,16 +149,24 @@ async def process(websocket):
                         f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Invalid IP address!')
                     return
 
+                # Check if username is already signup and password match
+                if Users.exists(client.name):
+                    if not Users.check(client.name, packet.content):
+                        await client.send(type='handshake', content='password-invalid')
+                        Log.print(
+                            f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Invalid password!')
+                        return
+                else:
+                    Users.add(client.name, packet.content)
+
                 # Check if username is already used
                 for s in Clients.sessions:
                     if client.name == s.name:
                         # In case the ip is the same is just a reconnection
                         if client.ip == s.ip:
                             # Send the message and print
-                            await client.send(type='handshake', content='success')
-                            Log.print(
-                                f'[HANDSHAKE] [{packet.name}] [{packet.address}]: {packet.content}')
-                            return
+                            Clients.sessions.remove(s)
+                            break
                         await client.send(type='handshake', content='username-taken')
                         Log.print(
                             f'[HANDSHAKE] [{packet.name}] [{packet.address}]: Failed! Username already in use!')
@@ -214,8 +243,8 @@ async def process(websocket):
         Log.print(f"[ERROR] Key error! (Bad request?) {packet}")
     except websockets.exceptions.ConnectionClosedOK:
         Log.print(f"[ERROR] ConnectionClosedOK error! (Bad request?) {packet}")
-    #except TypeError:
-    #    Log.print(f"[ERROR] Type error! (Bad request?) {packet}")
+    except TypeError:
+        Log.print(f"[ERROR] Type error! (Bad request?) {packet}")
     #except:
     #    Log.print("[ERROR] Unknown error!")
 
@@ -223,10 +252,15 @@ async def main():
 
     Log.verbose = True
 
+    Users.init()
+    Texts.init()
+
+    Chats.load()
+
     Chats.Global.messages.append(Message({'recipient': 'global', 'sender': 'Server',
                                  'text': 'Server started! Enjoy your stay!', 'timestamp': datetime.now().strftime('%H:%M')}))
 
-
+    save()
     clean()
     async with websockets.serve(process, "0.0.0.0", 8763):
         await asyncio.Future()  # run forever

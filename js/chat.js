@@ -1,6 +1,7 @@
 class Chat {
   static nickname = null;
   static address = null;
+  static password = null;
   static session_status = null;
   static current_chat = null;
 
@@ -12,11 +13,13 @@ class Chat {
 
     Chat.nickname = Chat.getVariableFromHTML('nickname');
     Chat.address = Chat.getVariableFromHTML('address');
+    Chat.password = Chat.getVariableFromHTML('password');
+
     Chat.current_chat = 'global';
 
     if (Chat.nickname == "null" || Chat.address == "null") return;
 
-    Connection.configure(Chat.nickname, Chat.address, Chat.update_handler);
+    Connection.configure(Chat.nickname, Chat.password, Chat.address, Chat.update_handler);
     Connection.open();
 
   }
@@ -198,6 +201,11 @@ class Chat {
 // Listeners
 
 $("#submit-nickname").on("click", Chat.open_connection);
+$("#submit-nickname").on("keypress", function (e) {
+  if (e.key === "Enter" || e.keyCode === 13) {
+    Chat.open_connection();
+  }
+});
 
 $("#send-message-button").on("click", Chat.send_message);
 

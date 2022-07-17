@@ -26,6 +26,7 @@
     <div id="session-variables">
       <address>null</address>
       <nickname>null</nickname>
+      <password>null</password>
       <status>null</status>
       <current_page>login</current_page>
     </div>
@@ -61,25 +62,34 @@
           </p>
         </div>
 
-        <div class="my-5"></div>
+        <div class="my-4"></div>
 
         <div id="title-3" class="container-fluid d-flex justify-content-center fade-in">
           <p class="fw-bolder text-center">Let's start with that:</p>
         </div>
+
         <div class="my-1"></div>
 
         <div id="form" class='d-flex flex-column align-self-center fade-in'>
           <div class="form-group d-flex flex-column">
             <label for="nickname">Nickname</label>
             <input type="text" class="form-control" id="nickname-input" aria-describedby="nickname" placeholder="Enter nickname">
+            <div class="my-2"></div>
+
+            <div id="nickname-error-box" class="alert alert-warning small align-self-center" role="alert" style="width: 300px !important; word-wrap: break-word; display: none">          </div>
+
+            <label for="nickname">Password</label>
+
+            <input type="password" class="form-control" id="password-input" aria-describedby="password" placeholder="Enter password">
             <div class="my-1"></div>
-            <div id="nickname-error-box" class="alert alert-warning small align-self-center" role="alert" style="width: 300px !important; word-wrap: break-word; display: none">
+
+            <div id="password-error-box" class="alert alert-warning small align-self-center" role="alert" style="width: 300px !important; word-wrap: break-word; display: none">
             </div>
-          </div>
 
           <div class="my-2"></div>
 
           <button id="submit-nickname" class="btn btn-primary w-75 align-self-center" onclick="this.blur();">🚀</button>
+        </div>
         </div>
       </div>
     </div>
@@ -149,6 +159,7 @@
 
     <script src="js/address.js"></script>
     <script src="js/nickname.js"></script>
+    <script src="js/password.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/websockets.js"></script>
     <script src="js/right-click-menu.js"></script>

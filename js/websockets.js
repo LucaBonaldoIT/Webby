@@ -24,6 +24,7 @@ class Connection {
   static server_address = "151.42.218.228";
   static client_address = null;
   static client_name = null;
+  static client_password = null;
   static status = null;
   static socket = null;
   static handshake_status = null;
@@ -33,8 +34,9 @@ class Connection {
 
   static handler = () => {};
 
-  static configure(name, address, handler) {
+  static configure(name, password, address, handler) {
     Connection.client_name = name;
+    Connection.client_password = password;
     Connection.client_address = address;
     Connection.handler = handler;
   }
@@ -60,7 +62,7 @@ class Connection {
           name: Connection.client_name,
           address: Connection.client_address,
           type: "handshake",
-          content: "",
+          content: Connection.client_password
         })
       );
     };
