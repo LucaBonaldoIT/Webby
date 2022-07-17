@@ -46,6 +46,7 @@ class Chats:
     def getClientsHash(clients):
         clients = sorted(clients)
         clients = hashlib.md5((clients[0] + clients[1]).encode()).hexdigest()
+        return clients
 
     @staticmethod
     def getJSON(clients):
@@ -168,13 +169,14 @@ async def process(websocket):
                         f'[TEXT] [{packet.name}] [{packet.address}]: {packet.content}')
 
                 else:
-                    if Chats.is_username_valid(packet.content) == 'no-error':
+                    if Chats.is_username_valid(message.recipient) == 'no-error':
                         Chats.append(message)
                         # Todo - Implement hashable sessions for faster performance
                         for client in Clients.sessions:
                             if client.name == message.recipient:
-                                Log.print('sent')
                                 await client.send(name=packet.name, address=packet.address, type='text', content=str(message))
+                                Log.print(
+                                    f'[TEXT] [{packet.name}] [{packet.address}]: {packet.content}')
 
             # Handle chat request
             elif(packet.type == 'chat-request'):
@@ -210,8 +212,10 @@ async def process(websocket):
         Log.print(f"[ERROR] JSONDecodeError! (Bad request?) {packet}")
     except KeyError:
         Log.print(f"[ERROR] Key error! (Bad request?) {packet}")
-    except TypeError:
-        Log.print(f"[ERROR] Type error! (Bad request?) {packet}")
+    except websockets.exceptions.ConnectionClosedOK:
+        Log.print(f"[ERROR] ConnectionClosedOK error! (Bad request?) {packet}")
+    #except TypeError:
+    #    Log.print(f"[ERROR] Type error! (Bad request?) {packet}")
     #except:
     #    Log.print("[ERROR] Unknown error!")
 

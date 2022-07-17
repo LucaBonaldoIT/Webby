@@ -74,11 +74,13 @@ label:focus {
 }
 
 .active-chat {
-  background-color: rgba(0, 0, 0, 0.5);
+  /*background-color: rgba(0, 0, 0, 0.5);*/
+  background-color: #1598e3;
 }
 
 .chat-box:hover {
-  background-color: rgba(0, 0, 0, 0.5);
+  /*background-color: rgba(0, 0, 0, 0.5);*/
+  background-color: #1598e3;
 }
 
 #chat-content {

@@ -4,7 +4,7 @@ class Chat {
   static session_status = null;
   static current_chat = null;
 
-  static opened_chat = [];
+  static opened_chat = ['global'];
 
   // Client/Server functions
 
@@ -56,8 +56,8 @@ class Chat {
 
   static add_chat(name) {
     $("#chat-boxes").append(`
-      <div class='chat-box container d-flex flex-column justify-content-center my-2'>
-        <p class='text-light h5 fw-bold'>${name}</p>
+      <div id=${name + '-chat-box'} class='chat-box container d-flex flex-column justify-content-center my-2'>
+        <p id=${name} class='text-light h5 fw-bold'>${name}</p>
       </div>
     `);
     Chat.opened_chat.push(name)
@@ -82,8 +82,12 @@ class Chat {
       Chat.add_chat(chat)
 
     Chat.clean_chat();
+
+    $('#chat-boxes').children('.active-chat').removeClass('active-chat')
     Chat.current_chat = chat;
+    $('#chat-boxes').children('#' + Chat.current_chat + '-chat-box').addClass('active-chat')
     Chat.get_chat(chat)
+
   }
 
   static load_chat(chat) {
@@ -127,7 +131,12 @@ class Chat {
     } else if (packet.type == "text") {
       let message = JSON.parse(packet.content)
       if (packet.name == Chat.nickname) return;
-      //if (message['recipient'] == 'global')
+
+      if (Chat.current_chat == 'global')
+        if (message['recipient'] == 'global')
+          Chat.append_message(packet.name, message['text'], Chat.getTimestamp());
+
+      if ((message['sender'] == Chat.current_chat) && (message['recipient'] == Chat.nickname))
         Chat.append_message(packet.name, message['text'], Chat.getTimestamp());
     }
 
@@ -136,8 +145,8 @@ class Chat {
       Chat.setVariableToHTML('status', Chat.session_status)
 
       if (Chat.session_status == "connected") {
-        Chat.get_chat("global");
         Chat.changePageTo('connected')
+        Chat.change_chat('global')
       } else if (Chat.session_status == "failed") {
         Chat.changePageTo('disconnected')
       } else if (Chat.session_status == "connecting") {
@@ -213,3 +222,9 @@ $("#new-chat-input").on("keypress", function (e) {
     temp_ChangeChat();
   }
 });
+
+$('#chat-boxes').on('click', (e) => {
+  chat = e.target.id
+    if (chat != 'chat-boxes')
+      Chat.change_chat(chat)
+})
